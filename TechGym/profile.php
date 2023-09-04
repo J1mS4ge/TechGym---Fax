@@ -53,6 +53,16 @@ if (isset($_SESSION["user_id"])) {
         $userProfile[$row['form_id']] = $row;
     }
 }
+
+$query = "SELECT display FROM routine WHERE user_id = ?";
+$stmt = $mysqli->prepare($query);
+$stmt->bind_param("i", $_SESSION["user_id"]);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+$display = $row ? $row["display"] : "no"; // Set a default value if the row doesn't exist
+$_SESSION['display'] = $display; // Store in the session
+
 ?>
 
 <!DOCTYPE html>
@@ -61,7 +71,7 @@ if (isset($_SESSION["user_id"])) {
     <title>Profile</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="http://localhost/TechGym/css/custom.css?<?=time()?>" type="text/css">
+    <link rel="stylesheet" href="css/custom.css?<?=time()?>" type="text/css">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -69,6 +79,7 @@ if (isset($_SESSION["user_id"])) {
     <script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js" defer></script>
     <script src="http://localhost/TechGym/js/validation.js" defer></script>
     <script src="http://localhost/TechGym/js/autosize-dist/autosize.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <style>
         body, h1, h2, h3, h4, h5 {font-family: "Raleway", sans-serif}
@@ -406,9 +417,15 @@ if (isset($_SESSION["user_id"])) {
 
               <button type="submit" name="updatePassword" value="Save" class="fa-solid fa-floppy-disk profilesave fa-2xl savemodal"></button>
           </form>
-          <span id="edit-modal-close-button" class="modal-close-button">&times;</span>
-          <br><br>
-
+          <br><br><hr>
+            <button class="edituser">ADVANCED</button><br>
+            <br>
+            <button class="edituser">INTERMEDIATE</button><br>
+            <br>
+            <button class="edituser">BEGINNER</button><br>
+            <br><br>
+            <span id="edit-modal-close-button" class="modal-close-button">&times;</span>
+            <br><br>
           <div class="w3-display-container" style="margin-top: 60px;">
                             <div class="w3-display-bottomleft w3-container w3-text-black">
                         <h2 class="sectiontitle"> Settings </h2>
@@ -426,30 +443,55 @@ if (isset($_SESSION["user_id"])) {
                         <a href="#equipment" data-page="index.php"><i class="fa-solid fa-dumbbell"></i> Equipment</a>
                     </div>
                     <div>
+                        <a href="#plans" data-page="index.php"><i class="fa-solid fa-coins"></i> Plans</a>
+                    </div>
+                    <div>
                         <a href="#trainers" data-page="index.php"><i class="fa-solid fa-users"></i> Trainers</a>
+                    </div>
+                    <div>
+                        <a href="#aboutus" data-page="index.php"><i class="fa-solid fa-circle-info"></i> About us</a>
                     </div>
                     <div>
                         <a href="#location" data-page="index.php"><i class="fa-solid fa-location-dot"></i> Location</a>
                     </div>
+                </div>
+                </div>
+            </li>
+
+            <li class="dropdown">
+                <a href="#profiles" data-page="profiles.php" class="dropbtn"><i class="fa fa-fw fa-users"></i> Profiles</a>
+                <div class="dropdown-content">
                     <div>
-                        <a href="#aboutus" data-page="index.php"><i class="fa-solid fa-circle-info"></i> About us</a>
+                        <a href="#admins" data-page="profiles.php"><i class="fa-solid fa-dumbbell"></i> Admins</a>
+                    </div>
+                    <div>
+                        <a href="#trainers" data-page="profiles.php"><i class="fa-solid fa-users"></i> Trainers</a>
+                    </div>
+                    <div>
+                        <a href="#users" data-page="profiles.php"><i class="fa-solid fa-location-dot"></i> Users</a>
                     </div>
                 </div>
             </li>
 
             <li>
-                <a href="#profili.php"><i class="fa-solid fa-users"></i> Profiles</a>
+                <a href="#routines" data-page="routines.php"><i class="fa-solid fa-table"></i> Routines</a>
             </li>
 
-            <?php if (isset($user)): ?>
-            <li class="dropdown">
-                <a href="#" class="dropbtn">
-                    <i class="fa-solid fa-user"></i>
-                    <?php echo $user['username']; ?>
-                </a>
+            <?php if (isset($user)): ?><li class="dropdown"><a href="#" class="dropbtn">
+                    <?php if ($user['role'] == "user"): ?>
+                        <i class="fa-solid fa-user"></i>
+                    <?php elseif ($user['role'] == "trainer"): ?>
+                        <i class="fa-solid fa-user-ninja"></i>
+                    <?php elseif ($user['role'] == "admin"): ?>
+                        <i class="fa-solid fa-user-secret"></i>
+                    <?php else: ?>
+                        <i class="fa-solid fa-user"></i>
+                    <?php endif; ?>
+                        <?php echo $user['username']; ?></a>
+
                 <div class="dropdown-content">
                     <div>
-                        <a href="profile.php"><i class="fa-solid fa-user-pen"></i> Profile</a>
+                        <a href="#profile"><i class="fa-solid fa-user-pen"></i> Profile</a>
                     </div>
                     <div>
                         <a href="#" id="edit-btn"><i class="fa-solid fa-user-gear"></i> Settings</a>
@@ -462,8 +504,8 @@ if (isset($_SESSION["user_id"])) {
             </li>
             <?php else: ?>
             <li class="dropdown">
-                <a href="#" class="dropbtn"><i class="fa-solid fa-user"></i></a>
-                <div class="dropdown-content">
+                <a href="#" class="dropbtn" data-dropdown-button="nouser"><i class="fa-solid fa-user"></i></a>
+                <div class="dropdown-content" data-dropdown="nouser">
                     <div>
                         <a href="#" id="login-btn"><i class="fa-solid fa-right-to-bracket"></i> Log in</a>
                     </div>
@@ -475,42 +517,35 @@ if (isset($_SESSION["user_id"])) {
             <?php endif; ?>
         </ul>
 
-<!-- Page container -->
-    <div class="w3-content w3-margin-top content" style="max-width:1400px;">
+    <!-- Page container -->
+    <div class="w3-content w3-margin-top content" style="max-width:1400px;" id="profile">
         <!-- Grid -->
-    <div class="w3-row-padding">
+        <div class="w3-row-padding">
            <!-- Left column -->
-    <div class="w3-third">
+            <div class="w3-third">
             
-                <div class="box w3-text-grey w3-card-4 section">
+                <div class="box w3-text-grey w3-card-4">
                     <div class="w3-display-container">
-                        <img src="img/<?php echo $user['image']; ?>" style="width:100%" class="pfp">
-                        <div class="w3-display-bottomleft w3-container w3-text-black">
-                            <h2 class="pfpname" style="background-color: #333333;"><?php echo $user['username']; ?></h2>
+                        <img src="img/<?php echo $user['image']; ?>" style="width:100%" class="pfp section">
+                            <div class="w3-display-bottomleft w3-container w3-text-black">
+                                <h2 class="pfpname"><?php echo $user['username']; ?></h2>
+                            </div>
                         </div>
-                        </div>
-                        <div class="w3-container">
-                        
+                        <div class="profileuser">
+                        <p style="text-transform: capitalize;"><i class="fa fa-briefcase fa-fw w3-margin-right w3-large red"></i><?php echo $user['role']; ?></p>
+                        <p><i class="fa fa-home fa-fw w3-margin-right w3-large red"></i>Location</p>
                         <p><i class="fa fa-envelope fa-fw w3-margin-right w3-large red"></i><?php echo $user['email']; ?></p>
-                        <p> <i class="fa fa-asterisk fa-fw w3-margin-right red"></i> Acitve FitPass: <input type="checkbox" class="save-cb-state" name="mycheckbox" value="yes"> </p> 
-                        <p><i class="fa fa-asterisk fa-fw w3-margin-right w3-large red"></i>Trainer(s):</p>                
-                                        <ul class="list-group">
-                                            <li class="list-group-item"><input type="checkbox" class="save-cb-state" name="mycheckbox2" value="yes"> John Doe</li>
-                                            <li class="list-group-item"><input type="checkbox" class="save-cb-state" name="mycheckbox3" value="yes"> Juan Perez</li>
-                                            <li class="list-group-item"><input type="checkbox" class="save-cb-state" name="mycheckbox4" value="yes"> Jan Novak</li>
-                                        </ul> 
+                        <p><i class="fa fa-phone fa-fw w3-margin-right w3-large red"></i>Phone number</p>
                         <hr>
 
-                        <p class="w3-large"><b><i class="fa fa-asterisk fa-fw w3-margin-right red"></i>Skills:</b></p>
+                        <p class="w3-large"><b><i class="fa fa-asterisk fa-fw w3-margin-right red"></i>Skills</b></p>
                         <p>GYM</p>
                         <div class="w3-light-grey w3-round-xlarge w3-small">
                             <div class="w3-container w3-center w3-round-xlarge backred" style="width:100%">9001%</div>
                         </div>
                         <p>PHP</p>
                         <div class="w3-light-grey w3-round-xlarge w3-small">
-                        <div class="w3-light-grey w3-round-xlarge w3-small">
                             <div class="w3-container w3-center w3-round-xlarge backred" style="width:80%">80%</div>
-                        </div>
                         </div>
                         <p>CSS</p>
                         <div class="w3-light-grey w3-round-xlarge w3-small">
@@ -530,8 +565,7 @@ if (isset($_SESSION["user_id"])) {
                         <p>English</p>
                         <div class="w3-light-grey w3-round-xlarge">
                             <div class="w3-container w3-center w3-round-xlarge backred" style="height:24px;width:40%"></div>
-                        </div>
-                        <br>
+                        </div><br>
                     </div>
                 </div><br>
             </div><!-- End left column -->
@@ -542,16 +576,17 @@ if (isset($_SESSION["user_id"])) {
                         <form action="#" method="REQUEST">
                             <input type="hidden" name="form_id" value="1">
                             <div>
-                                <p><textarea class="input" name="content1" id="content" placeholder="<?php echo getPlaceholderValue('content', 'DESCRIPTION HERE - 1000 CHARACTER LIMIT', 1); ?>"><?php echo isset($userProfile[1]['content']) ? $userProfile[1]['content'] : ''; ?></textarea></p>
-                            </div>
+                                <p><textarea rows="1" class="input input-icon" name="content1" id="content" placeholder="<?php echo getPlaceholderValue('content', 'DESCRIPTION HERE - 1000 CHARACTER LIMIT', 1); ?>"><?php echo isset($userProfile[1]['content']) ? $userProfile[1]['content'] : ''; ?></textarea></p>
+                            </div><br>
                             <button type="submit" name="submit" class="fa fa-pencil-square-o profilesave saveright fa-2xl"></button>
 
                             <div class="w3-display-container" style="margin-top: 60px; right: 15px;">
-                                <div class="w3-display-bottomleft w3-container w3-text-black">
-                                    <h2 class="sectiontitle"><input class="inputtitle" type="text" id="title" name="title1" placeholder="<?php echo getPlaceholderValue('title', 'TITLE HERE', 1); ?>" value="<?php echo isset($userProfile[1]['title']) ? $userProfile[1]['title'] : ''; ?>"></b></h2>
+                                <div class="w3-display-bottomleft w3-container w3-text-black" style="bottom: -3px; width: 100%; max-width: 500px;">
+                                    <h2 class="sectiontitle"><input style="width: 100%;" class="inputtitle" type="text" id="title" name="title1" placeholder="<?php echo getPlaceholderValue('title', 'TITLE HERE', 1); ?>" value="<?php echo isset($userProfile[1]['title']) ? $userProfile[1]['title'] : ''; ?>"></b></h2>
                                 </div>
                             </div>
                         </form>
+                        
                     </div>
                 </div>
                 <div class="w3-container w3-card box w3-margin-bottom section"><br>
@@ -559,41 +594,305 @@ if (isset($_SESSION["user_id"])) {
                         <form action="#" method="REQUEST">
                             <input type="hidden" name="form_id" value="2">
                             <div>
-                                <p><textarea class="input" name="content2" id="content" placeholder="<?php echo getPlaceholderValue('content', 'DESCRIPTION HERE - 1000 CHARACTER LIMIT', 2); ?>"><?php echo isset($userProfile[2]['content']) ? $userProfile[2]['content'] : ''; ?></textarea></p>
-                            </div>
+                                <p><textarea rows="1" class="input input-icon" name="content2" id="content" placeholder="<?php echo getPlaceholderValue('content', 'DESCRIPTION HERE - 1000 CHARACTER LIMIT', 2); ?>"><?php echo isset($userProfile[2]['content']) ? $userProfile[2]['content'] : ''; ?></textarea></p>
+                            </div><br>
                             <button type="submit" name="submit" class="fa fa-pencil-square-o profilesave saveright fa-2xl"></button>
                             <div class="w3-display-container" style="margin-top: 60px; right: 15px;">
-                                <div class="w3-display-bottomleft w3-container w3-text-black">
-                                    <h2 class="sectiontitle"><input class="inputtitle" type="text" id="title" name="title2" placeholder="<?php echo getPlaceholderValue('title', 'TITLE HERE', 2); ?>" value="<?php echo isset($userProfile[2]['title']) ? $userProfile[2]['title'] : ''; ?>"></h2>
+                                <div class="w3-display-bottomleft w3-container w3-text-black" style="bottom: -3px; width: 100%; max-width: 500px;">
+                                    <h2 class="sectiontitle"><input style="width: 100%;" class="inputtitle" type="text" id="title" name="title2" placeholder="<?php echo getPlaceholderValue('title', 'TITLE HERE', 2); ?>" value="<?php echo isset($userProfile[2]['title']) ? $userProfile[2]['title'] : ''; ?>"></h2>
                                 </div>
                             </div>
                         </form>
+
                     </div>
                 </div>
-                    <?php
-                        function getPlaceholderValue($fieldName, $defaultPlaceholder, $formId) {
-                            global $userProfile;
-                            if (isset($userProfile[$formId][$fieldName]) && !empty($userProfile[$formId][$fieldName])) {
-                                return $userProfile[$formId][$fieldName];
-                            }
-                            return $defaultPlaceholder;
+
+                <?php
+                $mysqli = require __DIR__ . "/database.php";
+
+                // Get the user's role
+                $sql = "SELECT role FROM user WHERE id = {$_SESSION['user_id']}";
+                $result = $mysqli->query($sql);
+                $user = $result->fetch_assoc();
+
+                if ($user['role'] === 'admin' || $user['role'] === 'trainer') {
+                    // Show the content only for admin and trainer
+                    ?>
+                    <div class="w3-container w3-card box w3-margin-bottom section"><br>
+                        <div class="w3-container">
+                            <form action="trainer-table.php" method="POST">
+                                <input type="hidden" name="form_id" value="3">
+                                <table class="styled-table" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <?php
+                                            // Fetch the existing data for the header, if available
+                                            $sql = "SELECT * FROM trainer_table WHERE form_id = 3 AND user_id = {$_SESSION["user_id"]} AND row_id = -1";
+                                            $result = $mysqli->query($sql);
+                                            $headerRow = $result->fetch_assoc();
+                                            ?>
+                                            <th><h5><input style="width: 100%;" type="text" name="header_content1" value="<?php echo isset($headerRow['content1']) ? $headerRow['content1'] : ''; ?>" placeholder="TITLE" class="input-icon inputtitle form-title"></h5></th>
+                                            <th><h5><input style="width: 100%;" type="text" name="header_content2" value="<?php echo isset($headerRow['content2']) ? $headerRow['content2'] : ''; ?>" placeholder="TITLE" class="input-icon inputtitle form-title"></h5></th>
+                                            <th><h5><input style="width: 100%;" type="text" name="header_content3" value="<?php echo isset($headerRow['content3']) ? $headerRow['content3'] : ''; ?>" placeholder="TITLE" class="input-icon inputtitle form-title"></h5></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        // Loop through the rows
+                                        for ($i = 0; $i < 5; $i++) {
+                                            // Fetch the existing data for the row, if available
+                                            $sql = "SELECT * FROM trainer_table WHERE form_id = 3 AND user_id = {$_SESSION["user_id"]} AND row_id = $i";
+                                            $result = $mysqli->query($sql);
+                                            $row = $result->fetch_assoc();
+                                            ?>
+                                            <tr>
+                                                <td><textarea style="width: 100%;" rows="1" name="content1[]" placeholder="INFO" class="input-icon input"><?php echo isset($row['content1']) ? $row['content1'] : ''; ?></textarea></td>
+                                                <td><textarea style="width: 100%;" rows="1" name="content2[]" placeholder="INFO" class="input-icon input"><?php echo isset($row['content2']) ? $row['content2'] : ''; ?></textarea></td>
+                                                <td><textarea style="width: 100%;" rows="1" name="content3[]" placeholder="INFO" class="input-icon input"><?php echo isset($row['content3']) ? $row['content3'] : ''; ?></textarea></td>
+                                            </tr>
+                                        <?php
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                                <div>
+                                    <p><textarea rows="1" class="input" name="content4" id="content" placeholder="DESCRIPTION HERE - 1000 CHARACTER LIMIT"><?php echo isset($userProfile[3]['content']) ? htmlspecialchars($userProfile[3]['content']) : ''; ?></textarea></p>
+                                </div><br>
+                                <button type="submit" name="submit" class="fa fa-pencil-square-o profilesave saveright fa-2xl"></button>
+                                <div class="w3-display-container" style="margin-top: 60px; right: 15px;">
+                                    <div class="w3-display-bottomleft w3-container w3-text-black" style="bottom: -3px; width: 100%; max-width: 500px;">
+                                        <h2 class="sectiontitle"><input style="width: 100%;" type="text" class="inputtitle" name="title4" id="title" placeholder="TITLE HERE" value="<?php echo isset($userProfile[3]['title']) ? htmlspecialchars($userProfile[3]['title']) : ''; ?>"></h2>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <button id="display_routine" type="button" class="fa <?php echo $display === 'yes' ? 'fa-eye' : 'fa-eye-slash'; ?> profilesave saveright fa-2xl" style="margin-top: -58px; right: 50px;"></button>
+                            <script>
+                                $(document).ready(function() {
+                                    $("#display_routine").on("click", function() {
+                                        var currentButton = $(this); // Store the button element
+                                        var user_id = <?php echo $_SESSION["user_id"]; ?>;
+                                        
+                                        console.log("AJAX Request Data:", {
+                                            user_id: user_id,
+                                            form_id: 3,
+                                            display: currentButton.hasClass("fa-eye") ? "no" : "yes"
+                                        });
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "update_routine.php",
+                                            data: {
+                                                user_id: user_id,
+                                                form_id: 3,
+                                                display: currentButton.hasClass("fa-eye") ? "no" : "yes"
+                                            },
+                                            success: function(response) {
+                                                console.log("AJAX Response:", response);
+                                                if (response === "yes") {
+                                                    currentButton.removeClass("fa-eye-slash").addClass("fa-eye");
+                                                } else if (response === "no") {
+                                                    currentButton.removeClass("fa-eye").addClass("fa-eye-slash");
+                                                }
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>     
+                        </div>
+                    </div>
+
+                <?php
+                }
+                ?>
+
+                <?php
+                    function getPlaceholderValue($fieldName, $defaultPlaceholder, $formId) {
+                        global $userProfile;
+                        if (isset($userProfile[$formId][$fieldName]) && !empty($userProfile[$formId][$fieldName])) {
+                            return $userProfile[$formId][$fieldName];
                         }
+                        return $defaultPlaceholder;
+                    }
+                ?>
+
+                <!-- Library auto-resizing the textarea(s) -->
+                <script type="text/javascript">
+                    textarea = document.querySelector("#content");
+                    textarea.addEventListener('input', autoResize, false);
+            
+                    function autoResize() {
+                        this.style.height = 'auto';
+                        this.style.height = this.scrollHeight + 'px';
+                    }
+
+                    autosize(document.querySelectorAll('textarea'));
+                </script>
+
+                <!-- Routine table -->
+                <?php
+                    // Get the currently logged-in user's user_id
+                    $user_id = $_SESSION['user_id'];
+
+                    // Fetch the "routine" column value and "display" value for the current user from the "user" table
+                    $user_query = "SELECT routine FROM user WHERE id = {$user_id}";
+                    $user_result = $mysqli->query($user_query);
+                    $user_row = $user_result->fetch_assoc();
+
+                    $routine_user_id = $user_row['routine'];
+
+                    // Fetch the "display" value from the routine table for the user's routine_user_id
+                    $routine_display_query = "SELECT display FROM routine WHERE user_id = {$routine_user_id}";
+                    $routine_display_result = $mysqli->query($routine_display_query);
+                    $routine_display_row = $routine_display_result->fetch_assoc();
+
+                    // Fetch the total number of subscribers for the displayed trainer's routine
+                    $totalSubscribersQuery = "SELECT COUNT(*) AS total FROM user WHERE routine = {$routine_user_id}";
+                    $totalSubscribersResult = $mysqli->query($totalSubscribersQuery);
+                    $totalSubscribersRow = $totalSubscribersResult->fetch_assoc();
+                    $totalSubscribers = isset($totalSubscribersRow['total']) ? $totalSubscribersRow['total'] : 0;
+
+                    // Check if routine_display_row exists and contains the 'display' column
+                    if ($routine_display_row && isset($routine_display_row['display'])) {
+                        $routine_display = $routine_display_row['display'];
+                    } else {
+                        $routine_display = '';
+                    }
+
+                    // Check if routine content is "0" or blank or display is not "yes"
+                    if (empty($user_row['routine']) || $user_row['routine'] === '0' || $routine_display !== 'yes') {
+                        // Display the routine placeholder
+                        echo '<div class="w3-container w3-card box w3-margin-bottom section"><br>';
+                        echo '<div class="w3-container">';
+                        echo '<div class="w3-container aboutuslist">';
+                        echo '<li><p>You could have a professional trainers routine here!</p></li><br>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                    } else {
+                        // Fetch the user's role from the user table based on their ID
+                        $role_query = "SELECT role FROM user WHERE id = {$routine_user_id}";
+                        $role_result = $mysqli->query($role_query);
+
+                        // Check if the role query executed successfully
+                        if ($role_result) {
+                            $role_row = $role_result->fetch_assoc();
+
+                            // Check if the role is "trainer" or "admin"
+                            if ($role_row['role'] === 'admin' || $role_row['role'] === 'trainer') {
+                                // Fetch the existing data for the header, if available
+                                $header_query = "SELECT * FROM trainer_table WHERE form_id = 3 AND user_id = {$routine_user_id} AND row_id = -1";
+                                $header_result = $mysqli->query($header_query);
+                                $header_row = $header_result->fetch_assoc();
+
+                                // Fetch the content from user_profile for the current user_id and form_id 3
+                                $profile_query = "SELECT title, content FROM user_profile WHERE user_id = {$routine_user_id} AND form_id = 3";
+                                $profile_result = $mysqli->query($profile_query);
+                                $profile_row = $profile_result->fetch_assoc();
+
+                                // Fetch the table rows data for the current user_id
+                                $table_query = "SELECT * FROM trainer_table WHERE form_id = 3 AND user_id = {$routine_user_id} AND row_id >= 0";
+                                $table_result = $mysqli->query($table_query);
+
+                                // Displayed content and title from user_profile
+                                $displayedUserTitle3 = isset($profile_row['title']) ? $profile_row['title'] : '';
+                                $displayedUserContent3 = isset($profile_row['content']) ? $profile_row['content'] : '';
+                                ?>
+                                <!-- The following div contains the dynamically generated table for the user -->
+                                <div class="w3-container w3-card box w3-margin-bottom section"><br>
+                                    <div class="w3-container">
+                                        <table class="styled-table" style="width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <h5><p class="input-icon form-title"><?php echo isset($header_row['content1']) ? $header_row['content1'] : ''; ?></p></h5>
+                                                    </th>
+                                                    <th>
+                                                        <h5><p class="input-icon form-title"><?php echo isset($header_row['content2']) ? $header_row['content2'] : ''; ?></p></h5>
+                                                    </th>
+                                                    <th>
+                                                        <h5><p class="input-icon form-title"><?php echo isset($header_row['content3']) ? $header_row['content3'] : ''; ?></p></h5>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                // Loop through the rows
+                                                while ($table_row = $table_result->fetch_assoc()) {
+                                                    ?>
+                                                    <tr>
+                                                        <td class="aboutuslist">
+                                                            <li><p class="input-icon input"><?php echo isset($table_row['content1']) ? $table_row['content1'] : ''; ?></p></li>
+                                                        </td>
+                                                        <td class="aboutuslist">
+                                                            <li><p class="input-icon input"><?php echo isset($table_row['content2']) ? $table_row['content2'] : ''; ?></p></li>
+                                                        </td>
+                                                        <td class="aboutuslist">
+                                                            <li><p class="input-icon input"><?php echo isset($table_row['content3']) ? $table_row['content3'] : ''; ?></p></li>
+                                                        </td>
+                                                    </tr>
+                                                <?php
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
+                                        <div class="w3-container aboutuslist">
+                                            <li><p><?php echo $displayedUserContent3; ?></p></li>
+                                        </div><br>
+                                        <div class="w3-display-container" style="margin-top: 60px;"><br>
+                                            <div class="w3-display-bottomleft w3-container w3-text-black"  style="bottom: -3px; left: -15px; width: 100%; max-width: 500px;">
+                                                <h2 class="sectiontitle"><?php echo $displayedUserTitle3; ?></h2>
+                                            </div>
+                                            <div class="w3-display-bottomright w3-container w3-text-black">
+                                                <div class="subsdiv">
+                                                    <label style="width: 100px;">Chads:</label>
+                                                    <input style="width: 100px; margin-left: 20px;" readonly value="<?php echo $totalSubscribers; ?>"><br>
+                                                    <br>
+                                                    <button id="subscribeButton-<?php echo $routine_user_id; ?>" class="subscribe-button saveright" type="button" style="width: 200px;" onclick="subscribe(<?php echo $routine_user_id; ?>)">
+                                                        <?php
+                                                        if (isset($_SESSION["subscribed_$routine_user_id"])) {
+                                                            if ($_SESSION["subscribed_$routine_user_id"]) {
+                                                                echo "Unsubscribe";
+                                                            } else {
+                                                                echo "Subscribe";
+                                                            }
+                                                        } else {
+                                                            echo "Subscribe";
+                                                        }
+                                                        ?>
+                                                    </button>
+                                                    <script>
+                                                        function subscribe(subscribedUserId) {
+                                                            var xhttp = new XMLHttpRequest();
+                                                            xhttp.onreadystatechange = function() {
+                                                                if (this.readyState === 4 && this.status === 200) {
+                                                                    document.getElementById("subscribeButton-" + subscribedUserId).innerHTML = this.responseText;
+                                                                    // Save the current scroll position
+                                                                    var scrollPosition = window.scrollY || window.pageYOffset;
+                                                                    sessionStorage.setItem('scrollPosition', scrollPosition);
+                                                                    // Reload the page
+                                                                    location.reload();
+                                                                }
+                                                            };
+                                                            xhttp.open("POST", "subscribe_ajax.php", true);
+                                                            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                                                            xhttp.send("subscribed_user_id=" + subscribedUserId);
+                                                        }
+                                                    </script>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php
+                            }
+                        } else {
+                            // Output an error message for role query
+                            echo "Error fetching user role for user ID: {$routine_user_id}. Error: {$mysqli->error}<br>";
+                        }
+                    }
                     ?>
 
-                    <!-- Library auto-resizing the textarea(s) -->
-                    <script type="text/javascript">
-                        textarea = document.querySelector("#content");
-                        textarea.addEventListener('input', autoResize, false);
-                
-                        function autoResize() {
-                            this.style.height = 'auto';
-                            this.style.height = this.scrollHeight + 'px';
-                        }
-
-                        autosize(document.querySelectorAll('textarea'));
-                    </script>
-
-<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%238b0000&ctz=UTC&showTitle=1&title=Fit%20Schedule%3A&mode=MONTH&src=c3IucnMjaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%230B8043" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
             </div><!-- End right column -->
         </div><!-- End grid -->
     </div><!-- End page container -->
@@ -623,33 +922,30 @@ if (isset($_SESSION["user_id"])) {
         }
         </script>
 
-          <script>
-              // Close buttons
-              document.querySelectorAll(".modal-close-button").forEach(function(button) {
+        <script>
+            // Close buttons
+            document.querySelectorAll(".modal-close-button").forEach(function(button) {
                 button.addEventListener("click", function() {
-                  // Hide the parent modal
-                  this.closest(".modal").style.display = "none";
+                    // Hide the parent modal
+                    this.closest(".modal").style.display = "none";
                 });
-              });
+            });
 
-              // Close the modal if the user clicks outside of it
-              window.addEventListener("click", function(event) {
+            // Close the modal if the user clicks outside of it
+            window.addEventListener("click", function(event) {
                 if (event.target.classList.contains("modal")) {
-                  // Hide the clicked modal
-                  event.target.style.display = "none";
+                    // Hide the clicked modal
+                    event.target.style.display = "none";
                 }
-              });
-          </script>
+            });
 
-          <!-- Modals -->
-          <script>
-                document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function() {
                 var navbar = document.querySelector(".navbar");
 
                 navbar.addEventListener("click", function(event) {
                     if (event.target.id === "edit-btn") {
-                    var editModal = document.getElementById("edit-modal");
-                    openModal(editModal);
+                        var editModal = document.getElementById("edit-modal");
+                        openModal(editModal);
                     }
                 });
 
@@ -680,14 +976,20 @@ if (isset($_SESSION["user_id"])) {
 
                 // Add click event listeners to the buttons
                 registerBtn.addEventListener("click", function() {
+                    closeModal(loginModal);
+                    closeModal(editModal);
                     openModal(registerModal);
                 });
 
                 loginBtn.addEventListener("click", function() {
+                    closeModal(registerModal);
+                    closeModal(editModal);
                     openModal(loginModal);
                 });
 
                 editBtn.addEventListener("click", function() {
+                    closeModal(registerModal);
+                    closeModal(loginModal);
                     openModal(editModal);
                 });
 
@@ -707,63 +1009,17 @@ if (isset($_SESSION["user_id"])) {
                 // Close the modal if the user clicks outside of it
                 window.addEventListener("click", function(event) {
                     if (event.target === registerModal) {
-                    closeModal(registerModal);
+                        closeModal(registerModal);
                     }
                     if (event.target === loginModal) {
-                    closeModal(loginModal);
+                        closeModal(loginModal);
                     }
                     if (event.target === editModal) {
-                    closeModal(editModal);
+                        closeModal(editModal);
                     }
                 });
             });
         </script>
-        
-        <script>
-            // Avoid scoping issues by encapsulating code inside anonymous function
-            (function() {
-            // variable to store our current state
-            var cbstate;
-            
-            // bind to the onload event
-            window.addEventListener('load', function() {
-                // Get the current state from localstorage
-                // State is stored as a JSON string
-                cbstate = JSON.parse(localStorage['CBState'] || '{}');
-            
-                // Loop through state array and restore checked 
-                // state for matching elements
-                for(var i in cbstate) {
-                var el = document.querySelector('input[name="' + i + '"]');
-                if (el) el.checked = true;
-                }
-            
-                // Get all checkboxes that you want to monitor state for
-                var cb = document.getElementsByClassName('save-cb-state');
-            
-                // Loop through results and ...
-                for(var i = 0; i < cb.length; i++) {
-            
-                //bind click event handler
-                cb[i].addEventListener('click', function(evt) {
-                    // If checkboxe is checked then save to state
-                    if (this.checked) {
-                    cbstate[this.name] = true;
-                    }
-                
-                // Else remove from state
-                    else if (cbstate[this.name]) {
-                    delete cbstate[this.name];
-                    }
-                
-                // Persist state
-                    localStorage.CBState = JSON.stringify(cbstate);
-                });
-                }
-            });
-            })();
-        </script>
-		
-		
+
     </body>
 </html>

@@ -1,3 +1,20 @@
+/* Modal position */
+#login-modal .modal-content {
+    top: 320px;
+}
+
+#register-modal .modal-content {
+    top: 440px;
+}
+
+#edit-modal .modal-content {
+    top: 795px;
+}
+
+.edit-user-modal .modal-content {
+    top: 540px;
+}
+
 /* Navbar */
 .navbar {
     border-radius: 0px 0px 12px 12px;
@@ -110,7 +127,7 @@ li:not(:last-child) {
 }
 
 /* Navbar resize */
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 650px) {
     .navbar {
         flex-direction: column;
         align-items: center;
@@ -186,7 +203,24 @@ li:not(:last-child) {
     
     .dropdown-content[data-dropdown="nouser"] a:first-child {
         margin-top: 20px;
-    } 
+    }
+
+    /* Modal position */
+    #login-modal .modal-content {
+        top: calc(320px + 110px);
+    }
+    
+    #register-modal .modal-content {
+        top: calc(440px + 110px);
+    }
+    
+    #edit-modal .modal-content {
+        top: calc(795px + 170px);
+    }
+    
+    .edit-user-modal .modal-content {
+        top: calc(540px + 170px);
+    }
 }
 
 /* Misc */
@@ -284,8 +318,21 @@ body {
     border-radius: 12px 12px 0px 0px;
 }
 
+.pfp2 {
+    width: 100%;
+    border-radius: 12px !important;
+}
+
 .pfpname {
     background-color: darkred;
+    border-radius: 12px 12px 0px 0px;
+    margin-bottom: 0px;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.profilepfpname {
+    background-color: #333333;
     border-radius: 12px 12px 0px 0px;
     margin-bottom: -1px;
     padding-right: 10px;
@@ -302,6 +349,7 @@ body {
     border-bottom: 4px solid;
     border-color: darkred;
     transition: 0.3s;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
 .sectiontitle {
@@ -319,7 +367,7 @@ body {
     transition: 0.3s;
 }
 
-.aboutuslist p:hover {
+.aboutuslist li:hover {
     font-size: medium;
 }
 
@@ -348,6 +396,11 @@ body {
     width: calc(100% - 20px);
     height: 2px;
     background-color: darkred;
+}
+
+/* List title */
+.listtitle {
+    padding-left: 5px;
 }
 
 /* Slideshow */
@@ -471,7 +524,7 @@ footer {
 
 /* Profile save button */
 .profilesave {
-    top: 15px;
+    top: -15px;
     font-family: FontAwesome;
     z-index:10;
     position: relative;
@@ -487,7 +540,7 @@ footer {
 .profilesave:hover {
     color: red; 
     -webkit-text-fill-color: red;
-    top: 10px
+    top: -20px
 }
 
 .saveright {
@@ -495,7 +548,73 @@ footer {
 }
 
 .savemodal {
-    margin-left: 90px;
+    margin-left: 100px;
+}
+
+/* Profile save button */
+.edituser {
+    top: 15px;
+    z-index:10;
+    position: relative;
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    -webkit-text-fill-color: #fff;
+    transition: 0.3s;
+    margin-left: 38px;
+    font-family: "Raleway", sans-serif;
+    background-color: darkred;
+    border-radius: 12px;
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+    width: 40%;
+    height: 30px;
+}
+
+.edituser:hover {
+    -webkit-text-fill-color: #fff;
+    background-color: red;
+    top: 10px
+}
+
+/* Profiles edit button */
+.profilesedit {
+    top: 20px;
+    font-family: FontAwesome;
+    z-index:10;
+    position: relative;
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    color: darkred; 
+    -webkit-text-fill-color: darkred;
+    transition: 0.3s;
+}
+
+.profilesedit:hover {
+    color: red; 
+    -webkit-text-fill-color: red;
+    top: 10px
+}
+
+/* User profile */
+.userProfile {
+    transition: transform 0.3s;
+}
+
+.userProfile:hover {
+    transform: translateY(-5px);
+}
+
+/* Profile shadow */
+.profile-container {
+    transition: 0.3s;
+    border-radius: 12px;
+}
+
+.profile-container:hover {
+    box-shadow: 0 0 10px red;
 }
 
 /* Modal */
@@ -518,16 +637,13 @@ footer {
 .modal-content {
     border-radius: 12px;
     background-color: #222222;
-    position: relative;
+    position: absolute;
     border-bottom: 4px solid;
     border-color: darkred;
     transition: 0.3s;
     margin-left: calc(50% - 200px);
-    top: 20px;
     width: 400px;
-
     left: 200px;
-    top: 50%;
     transform: translate(-50%, -50%);
 }
   
@@ -537,14 +653,13 @@ footer {
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3;
+    transition: color 0.3;
     margin-right: 15px;
     margin-top: 60px;
 }
   
 .modal-close-button:hover {
-    color: #000;
-    transition: 0.3;
+    color: red;
 }
 
 /* Modal forms */
@@ -565,7 +680,7 @@ footer {
     align-items: center;
     width: 40%;
     height: 30px;
-    margin-left: -170px; /* Adjust margin to move the label down and a little to the left */
+    margin-left: -170px;
     margin-bottom: -30px;
     color: #fff;
     background-color: darkred;
@@ -578,7 +693,7 @@ footer {
     margin-bottom: 10px;
     outline: none !important;
     height: 30px;
-    margin-left: 150px; /* Adjust margin to move the input a little to the right */
+    margin-left: 150px;
     color: white;
     background-color: #333333;
     border: none;
@@ -671,4 +786,277 @@ footer {
 
 .upload input::-webkit-file-upload-button, .upload input[type=submit]{
     cursor: pointer;
+}
+
+/* Table */
+.styled-table {
+    overflow: hidden;
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px 12px 0px 0px;
+}
+
+/* Table header */
+.styled-table thead tr {
+    background-color: darkred;
+    color: #ffffff;
+    text-align: left;
+}
+
+/* Table cells */
+.styled-table th:first-child {
+    border-radius: 12px 12px 0px 0px;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
+
+/* Table rows */
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:nth-of-type(even) td textarea {
+    border: none;
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    padding: none;
+    width: auto;
+    resize: none;
+    background: transparent;
+    color: black;
+    border-radius: 12px;
+}
+
+.styled-table tbody tr:nth-of-type(odd) td textarea {
+    border: none;
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    padding: none;
+    width: auto;
+    resize: none;
+    background: transparent;
+    color: white;
+    border-radius: 12px;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid red;
+}
+
+.form-title {
+    border: none;
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    padding: none;
+    width: auto;
+    resize: none;
+    background: transparent;
+    color: black;
+    border-radius: 12px;
+}
+
+/* Table rows displayed */
+.styled-table tbody tr:nth-of-type(even) td p {
+    border: none;
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    padding: none;
+    width: auto;
+    resize: none;
+    background: transparent;
+    color: black;
+    border-radius: 12px;
+}
+
+.styled-table tbody tr:nth-of-type(odd) td p {
+    border: none;
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    padding: none;
+    width: auto;
+    resize: none;
+    background: transparent;
+    color: white;
+    border-radius: 12px;
+}
+
+/* Active row */
+.styled-table tbody tr.active-row td input{
+    font-weight: bold;
+    color: red;
+}
+
+#redtitle {
+    border: none;
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    padding: none;
+    width: auto;
+    resize: none;
+    background: transparent;
+    color: red;
+    border-radius: 12px;
+}
+
+/* Placeholder icon */
+.input-icon::placeholder {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='1em' viewBox='0 0 512 512'%3E%3C!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --%3E%3Cpath d='M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+/* Routines Subscribe */
+.subsdiv {
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    margin-left: 5px;
+    margin-bottom: 20px;
+    width: 250px;
+    height: 95px;
+    padding-top: 10px;
+    background-color:rgb(122, 0, 0);
+    border-color: darkred;
+    border-radius: 12px 12px 0px 0px;
+    margin-bottom: -1px; 
+    padding-right: 10px;
+    padding-left: 80px;
+    border-width: 4px 4px 0px 4px;
+    border-style: solid;
+}
+
+/* Label & rectangle */
+.subsdiv label {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    height: 30px;
+    margin-left: -170px;
+    margin-bottom: -30px;
+    color: #fff;
+    background-color: darkred;
+    border-radius: 12px 0px 0px 12px;
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+  }
+
+/* Button */
+.subsdiv button {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    height: 30px;
+    margin-left: -72px;
+    margin-bottom: -30px;
+    color: #fff;
+    background-color: darkred;
+    border-radius: 12px;
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 -17px 50px 0 rgba(0, 0, 0, 0.19);
+    border: 0px;
+    transition: 0.3s;
+    transform: translateY(0); /* Initial position using transform */
+}
+
+.subsdiv button:hover {
+    box-shadow: 0 0 10px red;
+    background-color: red;
+    transform: translateY(-5px); /* Move button upwards on hover */
+}
+  
+/* Input */
+.subsdiv input {
+    margin-bottom: 10px;
+    outline: none !important;
+    height: 30px;
+    margin-left: 150px;
+    color: white;
+    background-color: #333333;
+    border: none;
+    border-radius: 0px 12px 12px 0px;
+    text-align: center; 
+}
+
+/* Profile user section*/
+.profileuser {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-color:rgb(122, 0, 0);
+    border-color: darkred;
+    border-radius: 0px 0px 12px 12px;
+    border-width: 0px 4px 4px 4px;
+    border-style: solid;
+}
+
+/* Index plans label */
+.indexlb {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    padding-top: 10px;
+    background-color:rgb(122, 0, 0);
+    border-color: darkred;
+    border-radius: 0px 0px 12px 12px;
+    border-width: 0px 4px 4px 4px;
+    border-style: solid;
+    height: 100%;
+}
+
+.indexlb ul {
+    margin-left: -10px;
+}
+
+.indexlb ul li {
+    width: 110%;
+    left: -30px;
+}
+
+.indexlb ul hr {
+    margin-left: -30px;
+}
+
+/* Plans button */
+.plans-button {
+    margin-bottom: 20px;
+    width: 100%;
+    height: 30px;
+    margin-top: auto; /* Push the button to the bottom */
+    color: #fff;
+    background-color: darkred;
+    border-radius: 12px;
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 -17px 50px 0 rgba(0, 0, 0, 0.19);
+    border: none;
+    transition: 0.3s;
+    transform: translateY(0);
+}
+
+
+.plans-button:hover {
+    box-shadow: 0 0 10px red;
+    background-color: red;
+    transform: translateY(-5px); /* Move button upwards on hover */
 }

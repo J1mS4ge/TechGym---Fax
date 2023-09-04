@@ -19,14 +19,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($user) {
             $hashedPassword = $user["password_hash"];
-            
+
             echo "Inputted Password: " . $pass . "<br>";
             echo "Hashed Password from Database: " . $hashedPassword . "<br>";
-            
+
             if (password_verify($pass, $hashedPassword)) {
                 session_regenerate_id(true);
                 $_SESSION["user_id"] = $user["id"];
-                header("Location: index.php");
+
+                // Check if the user's role is valid, otherwise set it to "user"
+                $validRoles = ["user", "trainer", "admin"];
+                $userRole = $user["role"];
+
+                if (!in_array($userRole, $validRoles)) {
+                    $userRole = "user";
+                    $updateSql = "UPDATE user SET role = 'user' WHERE id = " . $user["id"];
+                    $mysqli->query($updateSql);
+                }
+
+                $_SESSION["role"] = $userRole;
+
+                // Redirect back to the previous page
+                header("Location: " . $_SERVER['HTTP_REFERER']);
                 exit;
             } else {
                 //$is_invalid = true;

@@ -37,8 +37,8 @@ $password_hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
 $mysqli = require __DIR__ . "/database.php";
 
-$sql = "INSERT INTO user (name, surname, username, email, password_hash)
-        VALUES (?, ?, ?, ?, ?)";
+$sql = "INSERT INTO user (name, surname, username, email, password_hash, role)
+        VALUES (?, ?, ?, ?, ?, ?)";
         
 $stmt = $mysqli->stmt_init();
 
@@ -46,12 +46,15 @@ if ( ! $stmt->prepare($sql)) {
     die("SQL error: " . $mysqli->error);
 }
 
-$stmt->bind_param("sssss",
+$role = "user";
+
+$stmt->bind_param("ssssss",
                   $_POST["name"],
                   $_POST["surname"],
                   $_POST["username"],
                   $_POST["email"],
-                  $password_hash);
+                  $password_hash,
+                  $role);
                   
                   if ($stmt->execute()) {
                     // Set the default image for the new user
@@ -78,7 +81,8 @@ $stmt->bind_param("sssss",
                     $updateSql = "UPDATE user SET image = '$imageName' WHERE id = $userId";
                     $mysqli->query($updateSql);
                 
-                    header("Location: index.php");
+                    // Redirect back to the previous page
+                    header("Location: " . $_SERVER['HTTP_REFERER']);
                     exit;
                 } else {
                     if ($mysqli->errno === 1062) {
